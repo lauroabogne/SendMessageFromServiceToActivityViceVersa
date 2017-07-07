@@ -32,9 +32,10 @@ public class MyService extends Service {
 
             if (msg.what == MESSAGE) {
                 Bundle bundle = msg.getData();
-                String messageFromActivity = bundle.getString(MESSAGE_TAG);
 
-                Toast.makeText(MyService.this,"Message From Activity :"+messageFromActivity,Toast.LENGTH_SHORT).show();
+                bundle.setClassLoader(MessageData.class.getClassLoader()); //important
+                MessageData messageData = bundle.getParcelable(MyService.MESSAGE_TAG);
+                Toast.makeText(MyService.this,"Message From Activity :"+ messageData.getMessage(),Toast.LENGTH_SHORT).show();
                 /**
                  * set mainActivityMessanger
                  * important
@@ -51,8 +52,14 @@ public class MyService extends Service {
         if (mainActivityMessanger != null)
             try {
 
+                MessageData messageData = new MessageData();
+                messageData.setMessage("Hello Activity");
+
+                Bundle bundle = new Bundle();
+                bundle.putParcelable(MyService.MESSAGE_TAG, messageData);
+
                 Message message = new Message();
-                message.obj = "from sevice : Hello Activity";
+                message.setData(bundle);
                 mainActivityMessanger.send(message);//replying / sending msg to activity
 
             } catch (RemoteException e) {
